@@ -1,0 +1,19 @@
+{
+  "name": "wondieworld-multiplayer",
+  "version": "1.0.0",
+  "description": "WonDieWorld - Multiplayer sandbox (Node.js + WebSocket + SQLite)",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "npx mocha"
+  },
+  "dependencies": {
+    "ws": "^8.17.0",
+    "bcrypt": "^5.1.1",
+    "sqlite3": "^5.1.7",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "mocha": "^10.7.0"
+  }
+}
