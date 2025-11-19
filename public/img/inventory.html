@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>WonDieWorld 인벤토리</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      background: #cfc6aa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
+    }
+
+    /* 인벤토리 전체 래퍼 */
+    .inv-screen {
+      position: relative;
+      width: 1152px;     /* 이미지 원본에 맞춰서 */
+      height: 768px;     /* 비율 유지 */
+      overflow: hidden;
+    }
+
+    /* 배경 이미지 */
+    .inv-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      user-select: none;
+      pointer-events: none; /* 배경은 클릭 안 받게 */
+    }
+
+    /* 공통 핫스팟 (슬롯/버튼) */
+    .hotspot {
+      position: absolute;
+      cursor: pointer;
+      /* 슬롯 영역 보이기용 임시 배경 – 개발 끝나면 주석 처리하거나 지워도 됨 */
+      background: rgba(255, 255, 255, 0);
+    }
+
+    /* 슬롯 하이라이트 */
+    .slot.selected {
+      outline: 4px solid rgba(255, 215, 0, 0.8);
+      border-radius: 18px;
+    }
+
+    /* 아이템 이름/설명 오버레이 텍스트 (메모지 안쪽) */
+    .detail-name {
+      position: absolute;
+      left: 72%;
+      top: 76%;
+      width: 22%;
+      font-size: 20px;
+      font-weight: 600;
+      color: #5b4a30;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: left;
+    }
+
+    .detail-desc {
+      position: absolute;
+      left: 72%;
+      top: 82%;
+      width: 22%;
+      font-size: 14px;
+      line-height: 1.4;
+      color: #7a6745;
+      text-align: left;
+    }
+
+    /* 버튼 영역 오버레이 – 클릭만 받고 실제 그림은 PNG에 있음 */
+    .btn-equip,
+    .btn-store {
+      position: absolute;
+      bottom: 6.5%;
+      width: 10%;
+      height: 7%;
+      cursor: pointer;
+    }
+    .btn-equip {
+      left: 72%;
+    }
+    .btn-store {
+      left: 83%;
+    }
+
+    /* 탭도 원하면 클릭 가능하게 – 여기선 도구 탭만 예시 */
+    .tab {
+      position: absolute;
+      top: 11%;
+      width: 9%;
+      height: 7%;
+      cursor: pointer;
+    }
+    .tab-tools  { left: 23%; }
+    .tab-cloth  { left: 33%; }
+    .tab-misc   { left: 43%; }
+    .tab-mat    { left: 53%; }
+    .tab-etc    { left: 63%; }
+
+    .tab.active {
+      outline: 3px solid rgba(255, 200, 90, 0.9);
+      border-radius: 999px;
+    }
+  </style>
+</head>
+<body>
+  <div class="inv-screen" id="invScreen">
+    <!-- 인벤토리 배경 PNG -->
+    <img src="img/inventory_ui.png" alt="Inventory UI" class="inv-bg" />
+
+    <!-- 상단 탭 클릭 영역 -->
+    <div class="hotspot tab tab-tools" data-category="tool"></div>
+    <div class="hotspot tab tab-cloth" data-category="cloth"></div>
+    <div class="hotspot tab tab-misc" data-category="misc"></div>
+    <div class="hotspot tab tab-mat" data-category="material"></div>
+    <div class="hotspot tab tab-etc" data-category="etc"></div>
+
+    <!-- 4x4 슬롯 클릭 영역 (위치 대략 맞춰둠 / 필요하면 미세조정) -->
+    <!-- row 0 -->
+    <div class="hotspot slot" data-slot="0" style="left:37%; top:27%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="1" style="left:46%; top:27%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="2" style="left:55%; top:27%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="3" style="left:64%; top:27%; width:7.5%; height:9%;"></div>
+    <!-- row 1 -->
+    <div class="hotspot slot" data-slot="4" style="left:37%; top:38%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="5" style="left:46%; top:38%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="6" style="left:55%; top:38%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="7" style="left:64%; top:38%; width:7.5%; height:9%;"></div>
+    <!-- row 2 -->
+    <div class="hotspot slot" data-slot="8"  style="left:37%; top:49%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="9"  style="left:46%; top:49%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="10" style="left:55%; top:49%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="11" style="left:64%; top:49%; width:7.5%; height:9%;"></div>
+    <!-- row 3 -->
+    <div class="hotspot slot" data-slot="12" style="left:37%; top:60%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="13" style="left:46%; top:60%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="14" style="left:55%; top:60%; width:7.5%; height:9%;"></div>
+    <div class="hotspot slot" data-slot="15" style="left:64%; top:60%; width:7.5%; height:9%;"></div>
+
+    <!-- 메모지 안쪽에 표시할 텍스트 -->
+    <div class="detail-name" id="detailName">아이템을 선택해 주세요</div>
+    <div class="detail-desc" id="detailDesc">
+      왼쪽 인벤토리 슬롯을 클릭하면<br>이 영역에 설명이 나옵니다.
+    </div>
+
+    <!-- 장비하기 / 보관하기 버튼 클릭 영역 -->
+    <div class="btn-equip hotspot" id="btnEquip"></div>
+    <div class="btn-store hotspot" id="btnStore"></div>
+  </div>
+
+  <script>
+    // 예시 아이템 데이터 (슬롯 인덱스 기준)
+    const inventory = [
+      { name: "나무 망치", desc: "튼튼한 나무 망치입니다.", type: "tool", slot: 0 },
+      { name: "물뿌리개", desc: "꽃과 작물을 돌볼 때 사용해요.", type: "tool", slot: 1 },
+      { name: "황금 낚싯대", desc: "특별한 물고기를 낚을 수도?", type: "tool", slot: 2 },
+      { name: "배", desc: "먹으면 배가 든든해져요.", type: "food", slot: 3 },
+      { name: "오렌지", desc: "상큼한 과일.", type: "food", slot: 4 },
+      { name: "분홍 꽃", desc: "장식용 꽃.", type: "misc", slot: 5 },
+      { name: "하얀 꽃", desc: "향기가 좋아요.", type: "misc", slot: 6 },
+      { name: "잠자리채", desc: "곤충 잡기에 필수!", type: "tool", slot: 7 },
+      { name: "조개껍데기", desc: "바다에서 주웠어요.", type: "material", slot: 8 },
+      { name: "노란 꽃", desc: "햇살 같은 꽃.", type: "misc", slot: 9 },
+      { name: "별 조각", desc: "신비한 힘이 느껴져요.", type: "material", slot: 10 },
+      { name: "보물상자", desc: "안에 뭐가 있을까?", type: "misc", slot: 11 },
+      { name: "의자", desc: "편안해 보이는 의자.", type: "furniture", slot: 12 },
+      { name: "작은 계단", desc: "어딘가로 올라갈 수 있을지도?", type: "furniture", slot: 13 },
+      // 나머지 슬

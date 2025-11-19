@@ -1,31 +1,61 @@
-let socket = null;
-let connected = false;
 
-function connectToServer() {
-    const host = window.location.hostname;
-    const url = location.protocol === "https:"
-        ? `wss://${host}`
-        : `ws://${host}:3000`;
+// client/net.js
+// Socket.io 클라이언트 래퍼 (equip/store 동기화 포함)
 
-    socket = new WebSocket(url);
+const net = (() => {
+  let socket = null;
+  const handlers = {};
 
-    socket.onopen = () => {
-        connected = true;
-        console.log("WS Connected:", url);
-    };
+  function init() {
+    if (socket) return;
+    const token = localStorage.getItem("wondie_token") || "";
+    // eslint-disable-next-line no-undef
+    socket = io({ auth: { token } });
 
-    socket.onmessage = (msg) => {
-        handleNet(JSON.parse(msg.data));
-    };
+    socket.on("connect", () => emitLocal("connected"));
+    socket.on("disconnect", () => emitLocal("disconnected"));
 
-    socket.onclose = () => {
-        console.log("WS Closed. Reconnecting in 3s...");
-        connected = false;
-        setTimeout(connectToServer, 3000);
-    };
-}
+    const events = [
+      "connected",
+      "initState",
+      "playerJoined",
+      "playerLeft",
+      "stateUpdate",
+      "inventoryUpdate",
+    ];
 
-function sendToServer(data) {
-    if (!connected) return;
-    socket.send(JSON.stringify(data));
-}
+    events.forEach((ev) => {
+      socket.on(ev, (payload) => emitLocal(ev, payload));
+    });
+  }
+
+  function reconnect() {
+    if (socket) {
+      socket.disconnect();
+      socket = null;
+    }
+    init();
+  }
+
+  function on(event, fn) {
+    if (!handlers[event]) handlers[event] = [];
+    handlers[event].push(fn);
+  }
+
+  function emitLocal(event, payload) {
+    if (!handlers[event]) return;
+    handlers[event].forEach((fn) => fn(payload));
+  }
+
+  function emit(event, payload, cb) {
+    if (!socket || !socket.connected) return;
+    socket.emit(event, payload, cb);
+  }
+
+  return {
+    init,
+    reconnect,
+    on,
+    emit,
+  };
+})();

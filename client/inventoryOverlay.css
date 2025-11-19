@@ -1,0 +1,103 @@
+.inv-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none; /* 기본은 클릭 못 함, 내부에서 다시 켤 거 */
+}
+
+.inv-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.inv-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.inv-screen {
+  position: relative;
+  width: 1152px;
+  height: 768px;
+  overflow: hidden;
+}
+
+.inv-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* 클릭 영역 공통 */
+.hotspot {
+  position: absolute;
+  background: rgba(255, 255, 255, 0); /* 개발 중엔 0.1 ~ 0.2로 해서 위치 확인해도 됨 */
+  cursor: pointer;
+}
+
+/* 슬롯 선택 하이라이트 */
+.slot.selected {
+  outline: 4px solid rgba(255, 215, 0, 0.9);
+  border-radius: 20px;
+}
+
+/* 메모지 안 텍스트 위치 */
+.detail-name {
+  position: absolute;
+  left: 72%;
+  top: 76%;
+  width: 22%;
+  font-size: 20px;
+  font-weight: 600;
+  color: #5b4a30;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.detail-desc {
+  position: absolute;
+  left: 72%;
+  top: 82%;
+  width: 22%;
+  font-size: 14px;
+  line-height: 1.4;
+  color: #7a6745;
+}
+
+/* 버튼 클릭 영역 */
+.btn-equip,
+.btn-store {
+  position: absolute;
+  bottom: 6.5%;
+  width: 10%;
+  height: 7%;
+}
+
+.btn-equip { left: 72%; }
+.btn-store { left: 83%; }
+
+/* 탭 */
+.tab {
+  position: absolute;
+  top: 11%;
+  width: 9%;
+  height: 7%;
+}
+
+.tab-tools { left: 23%; }
+.tab-cloth { left: 33%; }
+.tab-misc  { left: 43%; }
+.tab-mat   { left: 53%; }
+.tab-etc   { left: 63%; }
+
+.tab.active {
+  outline: 3px solid rgba(255, 200, 90, 0.9);
+  border-radius: 999px;
+}
