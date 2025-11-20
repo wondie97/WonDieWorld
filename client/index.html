@@ -1,64 +1,115 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>WonDieWorld Inventory Sync Demo</title>
+  <title>WonDieWorld</title>
+
   <link rel="stylesheet" href="style.css" />
-  <!-- Socket.io 클라이언트 -->
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="net.js"></script>
-  <script src="inventoryOverlay.js"></script>
   <script src="main.js"></script>
 </head>
+
 <body>
-  <canvas id="gameCanvas" width="960" height="540"></canvas>
+  <!-- 🔹 메인 광장 배경 영상 -->
+  <video class="bg-video" autoplay muted loop playsinline>
+    <source src="videos/main_plaza.mp4" type="video/mp4" />
+  </video>
 
-  <!-- 인벤토리 오버레이 -->
-  <div id="inventoryOverlay" class="inv-overlay hidden">
-    <div class="inv-screen">
-      <img
-        src="inventory_ui.png"
-        alt="Inventory UI"
-        class="inv-bg"
-      />
+  <!-- 🔹 상단 WonDieWorld 로고 -->
+<div class="top-logo-bar">
+  <img src="img/logo_wondieworld.png" alt="WonDieWorld" class="logo-img" />
+</div>
 
-      <!-- 상단 탭 -->
-      <div class="hotspot tab tab-tools" data-category="tool"></div>
-      <div class="hotspot tab tab-cloth" data-category="cloth"></div>
-      <div class="hotspot tab tab-misc" data-category="misc"></div>
-      <div class="hotspot tab tab-mat" data-category="material"></div>
-      <div class="hotspot tab tab-etc" data-category="etc"></div>
-
-      <!-- 4x4 슬롯 -->
-      <div class="hotspot slot" data-slot="0" style="left:37%; top:27%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="1" style="left:46%; top:27%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="2" style="left:55%; top:27%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="3" style="left:64%; top:27%; width:7.5%; height:9%;"></div>
-
-      <div class="hotspot slot" data-slot="4" style="left:37%; top:38%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="5" style="left:46%; top:38%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="6" style="left:55%; top:38%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="7" style="left:64%; top:38%; width:7.5%; height:9%;"></div>
-
-      <div class="hotspot slot" data-slot="8"  style="left:37%; top:49%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="9"  style="left:46%; top:49%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="10" style="left:55%; top:49%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="11" style="left:64%; top:49%; width:7.5%; height:9%;"></div>
-
-      <div class="hotspot slot" data-slot="12" style="left:37%; top:60%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="13" style="left:46%; top:60%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="14" style="left:55%; top:60%; width:7.5%; height:9%;"></div>
-      <div class="hotspot slot" data-slot="15" style="left:64%; top:60%; width:7.5%; height:9%;"></div>
-
-      <div class="detail-name" id="invDetailName">아이템을 선택해 주세요</div>
-      <div class="detail-desc" id="invDetailDesc">
-        슬롯을 클릭하면<br>여기에 설명이 표시됩니다.
+  <!-- 🔹 로그인 / 회원가입 화면 -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-box">
+      <div class="auth-tabs">
+        <button id="tabLogin" class="active">로그인</button>
+        <button id="tabRegister">회원가입</button>
       </div>
 
-      <div class="btn-equip hotspot" id="invBtnEquip"></div>
-      <div class="btn-store hotspot" id="invBtnStore"></div>
+      <!-- 로그인 -->
+      <form id="loginForm" class="auth-form">
+        <label>이메일
+          <input type="email" id="loginEmail" required />
+        </label>
+        <label>비밀번호
+          <input type="password" id="loginPassword" required />
+        </label>
+        <button type="submit">로그인</button>
+      </form>
+
+      <!-- 회원가입 -->
+      <form id="registerForm" class="auth-form hidden">
+        <label>이메일
+          <input type="email" id="regEmail" required />
+        </label>
+        <label>비밀번호 (4자 이상)
+          <input type="password" id="regPassword" required minlength="4" />
+        </label>
+        <label>닉네임
+          <input type="text" id="regNickname" required />
+        </label>
+        <button type="submit">회원가입</button>
+      </form>
+
+      <div id="authMessage" class="auth-message"></div>
     </div>
   </div>
-</body>
-</html>
+
+  <!-- 🔹 게임 화면 -->
+  <div id="gameRoot" class="hidden">
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    function setMsg(msg, err = false) {
+      const box = $("authMessage");
+      box.textContent = msg;
+      box.style.color = err ? "red" : "#333";
+    }
+
+    function showLoginTab() {
+      $("loginForm").classList.remove("hidden");
+      $("registerForm").classList.add("hidden");
+      $("tabLogin").classList.add("active");
+      $("tabRegister").classList.remove("active");
+      setMsg("");
+    }
+
+    function showRegisterTab() {
+      $("loginForm").classList.add("hidden");
+      $("registerForm").classList.remove("hidden");
+      $("tabLogin").classList.remove("active");
+      $("tabRegister").classList.add("active");
+      setMsg("");
+    }
+
+    function showGame() {
+      $("authOverlay").classList.add("hidden");
+      $("gameRoot").classList.remove("hidden");
+    }
+
+    async function apiPost(url, body) {
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      return res.json();
+    }
+
+    window.addEventListener("load", () => {
+      $("tabLogin").addEventListener("click", showLoginTab);
+      $("tabRegister").addEventListener("click", showRegisterTab);
+
+      $("loginForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = $("loginEmail").value;
+        const password = $("loginPassword").value;
+
+        const data = awa

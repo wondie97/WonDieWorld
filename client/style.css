@@ -1,119 +1,217 @@
-
-* {
-  box-sizing: border-box;
+:root {
+  --color-forest-green: #cde8c9;
+  --color-cream: #fff6d3;
+  --color-cozy-beige: #ffe9a8;
+  --color-wood-brown: #5d4c2b;
+  --font-soft: 'MaruBuri', 'Nanum Pen Script', sans-serif;
 }
-body {
+
+/* 기본 배경은 투명 – 영상이 100% 채우게 */
+html, body {
   margin: 0;
-  background: #cfc6aa;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-soft);
+  color: var(--color-wood-brown);
+  background: transparent;
+  overflow: hidden;
+}
+
+/* 공통 숨김 */
+.hidden {
+  display: none !important;
+}
+
+/* 🔹 전체 배경 비디오 – 화면 꽉 채우기 */
+.bg-video {
+  position: fixed;
+  top: 0;
+  left: 0;
+  min-width: 100vw;
   min-height: 100vh;
-  font-family: "Noto Sans KR", system-ui, -apple-system, sans-serif;
-}
-
-#gameCanvas {
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-}
-
-/* 인벤토리 오버레이 */
-.inv-overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  pointer-events: none;
-}
-
-.inv-overlay.hidden {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.inv-overlay.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.inv-screen {
-  position: relative;
-  width: 1152px;
-  height: 768px;
-  overflow: hidden;
-}
-
-.inv-bg {
-  position: absolute;
-  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  user-select: none;
+  z-index: 0;
+  filter: brightness(0.95);   /* 살짝 어둡게 → UI 잘 보이게 */
   pointer-events: none;
 }
 
-.hotspot {
+/* 🔹 상단 로고 – 게임 타이틀 느낌으로 */
+.top-logo-bar {
+  position: fixed;
+  top: 12px;
+  width: 100%;
+  text-align: center;
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-wood-brown);
+  text-shadow: 0 3px 0 rgba(255, 246, 211, 0.95);
+  z-index: 20;
+  pointer-events: none;
+}
+
+/* 🔹 로그인 오버레이 – 화면 중앙 보드 느낌 */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+
+  /* 영상 위를 살짝 흐리게만 */
+  background: radial-gradient(circle at center,
+              rgba(255, 255, 255, 0.18) 0%,
+              rgba(255, 255, 255, 0.0) 55%);
+}
+
+/* 로그인 박스(간판) */
+.auth-box {
+  background-color: var(--color-cream);
+  width: 100%;
+  max-width: 420px;
+  padding: 40px 32px 30px;
+  border-radius: 22px;
+  border: 4px solid var(--color-wood-brown);
+  box-shadow:
+    0 8px 0 -2px rgba(93,76,43,0.45),
+    0 18px 30px rgba(0,0,0,0.25);
+  position: relative;
+  transform: translateY(30px);
+}
+
+/* 🔹 탭 – 위로 조금 튀어나온 느낌 */
+.auth-tabs {
+  display: flex;
   position: absolute;
-  background: rgba(255, 255, 255, 0);
+  top: -48px;
+  left: 24px;
+}
+
+.auth-tabs button {
+  padding: 10px 20px;
+  border: 3px solid var(--color-wood-brown);
+  border-bottom: none;
+  border-radius: 18px 18px 0 0;
+  background-color: var(--color-cream);
   cursor: pointer;
+  font-family: var(--font-soft);
+  font-size: 1.05em;
+  font-weight: bold;
+  margin-right: 6px;
+  transition: 0.2s;
 }
 
-.slot.selected {
-  outline: 4px solid rgba(255, 215, 0, 0.9);
-  border-radius: 20px;
+.auth-tabs button.active {
+  background-color: var(--color-cozy-beige);
+  transform: translateY(-4px);
+  box-shadow: 0 5px 0 -2px rgba(93,76,43,0.35);
 }
 
-/* 메모지 텍스트 위치 */
-.detail-name {
-  position: absolute;
-  left: 72%;
-  top: 76%;
-  width: 22%;
-  font-size: 20px;
-  font-weight: 600;
-  color: #5b4a30;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 🔹 폼 내부 */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
 }
-.detail-desc {
-  position: absolute;
-  left: 72%;
-  top: 82%;
-  width: 22%;
+
+.auth-form label {
+  font-size: 13px;
+}
+
+.auth-form input {
+  margin-top: 4px;
+  padding: 10px 12px;
+  border: 3px solid var(--color-forest-green);
+  border-radius: 12px;
   font-size: 14px;
-  line-height: 1.4;
-  color: #7a6745;
+  color: var(--color-wood-brown);
+  background-color: #ffffff;
+  outline: none;
+  transition: 0.2s;
 }
 
-/* 버튼 클릭 영역 */
-.btn-equip,
-.btn-store {
-  position: absolute;
-  bottom: 6.5%;
-  width: 10%;
-  height: 7%;
+.auth-form input:focus {
+  border-color: var(--color-cozy-beige);
+  box-shadow: 0 0 0 3px rgba(255,233,168,0.45);
 }
-.btn-equip { left: 72%; }
-.btn-store { left: 83%; }
 
-/* 탭 */
-.tab {
-  position: absolute;
-  top: 11%;
-  width: 9%;
-  height: 7%;
+/* 🔹 버튼 – 스티커 느낌 */
+.auth-form button[type="submit"] {
+  margin-top: 4px;
+  padding: 12px 0;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-soft);
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #ffffff;
+  background-color: var(--color-forest-green);
+  border-radius: 24px;
+  box-shadow: 0 5px 0 var(--color-wood-brown);
+  transition: 0.12s;
 }
-.tab-tools { left: 23%; }
-.tab-cloth { left: 33%; }
-.tab-misc  { left: 43%; }
-.tab-mat   { left: 53%; }
-.tab-etc   { left: 63%; }
 
-.tab.active {
-  outline: 3px solid rgba(255, 200, 90, 0.9);
-  border-radius: 999px;
+.auth-form button[type="submit"]:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--color-wood-brown);
+}
+
+/* 상태 메시지 */
+.auth-message {
+  margin-top: 10px;
+  min-height: 18px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* 🔹 로그인 후 게임 영역 – 처음엔 hidden 이라 안 보임 */
+.game-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 5;  /* 영상 위, 로그인 아래 */
+}
+
+/* 캔버스 – 나중에 메인 월드 쓸 때 */
+#gameCanvas {
+  background: transparent;
+  border-radius: 16px;
+  border: 3px solid rgba(0,0,0,0.15);
+}
+.top-logo-bar {
+  position: fixed;
+  top: 16px;
+  width: 100%;
+  text-align: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.top-logo-bar .logo-img {
+  max-width: 340px;
+  height: auto;
+}
+/* 🔹 상단 로고 영역 */
+.top-logo-bar {
+  position: fixed;
+  top: 20px;
+  width: 100%;
+  text-align: center;
+  z-index: 2000;   /* 로그인 박스 위 */
+  pointer-events: none;
+}
+
+/* 🔹 로고 이미지 크기 조절 */
+.logo-img {
+  width: 320px;        /* 원하는 크기 */
+  height: auto;
+  display: inline-block;
+  pointer-events: none;
+  image-rendering: -webkit-optimize-contrast;
 }
