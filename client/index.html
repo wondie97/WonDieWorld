@@ -78,85 +78,117 @@
   </div>
 
   <script>
-    const $ = (id) => document.getElementById(id);
+  const $ = (id) => document.getElementById(id);
 
-    function setMsg(msg, err = false) {
-      const box = $("authMessage");
-      box.textContent = msg || "";
-      box.style.color = err ? "red" : "#333";
-    }
-
-    function showLoginTab() {
-      $("loginForm").classList.remove("hidden");
-      $("registerForm").classList.add("hidden");
-      $("tabLogin").classList.add("active");
-      $("tabRegister").classList.remove("active");
-      setMsg("");
-    }
-
-    function showRegisterTab() {
-      $("loginForm").classList.add("hidden");
-      $("registerForm").classList.remove("hidden");
-      $("tabLogin").classList.remove("active");
-      $("tabRegister").classList.add("active");
-      setMsg("");
-    }
-
-    function showGame() {
-     $("authOverlay").classList.add("hidden");
-     $("gameRoot").classList.remove("hidden");
-
-  // 🔹 로그인 후 게임 루프 시작
-  if (window.gameMain && typeof window.gameMain.start === "function") {
-    window.gameMain.start();
+  function setMsg(msg, err = false) {
+    const box = $("authMessage");
+    box.textContent = msg || "";
+    box.style.color = err ? "red" : "#333";
   }
 
-    async function apiPost(url, body) {
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      return res.json();
+  function showLoginTab() {
+    $("loginForm").classList.remove("hidden");
+    $("registerForm").classList.add("hidden");
+    $("tabLogin").classList.add("active");
+    $("tabRegister").classList.remove("active");
+    setMsg("");
+  }
+
+  function showRegisterTab() {
+    $("loginForm").classList.add("hidden");
+    $("registerForm").classList.remove("hidden");
+    $("tabLogin").classList.remove("active");
+    $("tabRegister").classList.add("active");
+    setMsg("");
+  }
+
+  function showGame() {
+    $("authOverlay").classList.add("hidden");
+    $("gameRoot").classList.remove("hidden");
+
+    // 🔹 로그인 후 게임 루프 시작
+    if (window.gameMain && typeof window.gameMain.start === "function") {
+      window.gameMain.start();
     }
+  }
 
-    window.addEventListener("load", () => {
-      $("tabLogin").addEventListener("click", showLoginTab);
-      $("tabRegister").addEventListener("click", showRegisterTab);
+  // 공통 POST 함수
+  async function apiPost(url, body, token) {
+    const headers = { "Content-Type": "application/json" };
+    if (token) headers["Authorization"] = "Bearer " + token;
 
-      $("loginForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const email = $("loginEmail").value;
-        const password = $("loginPassword").value;
+    const res = await fetch(url, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(body),
+    });
+    return res.json();
+  }
 
-        const data = await apiPost("/api/login", { email, password });
-        if (!data.ok) return setMsg(data.message, true);
+  // 자동 로그인 시 사용자 상태 확인 (프로필 있는지)
+  async function checkMeAndRoute() {
+    const token = localStorage.getItem("wondie_token");
+    if (!token) return;
 
-        localStorage.setItem("wondie_token", data.token);
-        if (window.net && typeof net.reconnect === "function") net.reconnect();
+    try {
+      const me = await apiPost("/api/me", {}, token);
+      if (!me.ok) return;
+
+      // 캐릭터/닉네임 설정 안 되어 있으면 → 프로필 설정 페이지
+      if (me.needProfile) {
+        window.location.href = "select.html";
+      } else {
         showGame();
-      });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-      $("registerForm").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const email = $("regEmail").value;
-        const password = $("regPassword").value;
-        const nickname = $("regNickname").value;
+  window.addEventListener("load", () => {
+    $("tabLogin").addEventListener("click", showLoginTab);
+    $("tabRegister").addEventListener("click", showRegisterTab);
 
-        const data = await apiPost("/api/register", { email, password, nickname });
-        if (!data.ok) return setMsg(data.message, true);
+    // 🔹 로그인
+    $("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("loginEmail").value;
+      const password = $("loginPassword").value;
 
-        localStorage.setItem("wondie_token", data.token);
-        if (window.net && typeof net.reconnect === "function") net.reconnect();
-        showGame();
-      });
+      const data = await apiPost("/api/login", { email, password });
+      if (!data.ok) return setMsg(data.message || "로그인 실패", true);
 
-      const token = localStorage.getItem("wondie_token");
-      if (token) {
-        if (window.net && typeof net.init === "function") net.init();
+      localStorage.setItem("wondie_token", data.token);
+      if (window.net && typeof net.reconnect === "function") net.reconnect();
+
+      // 캐릭터/닉네임 없으면 select.html, 있으면 바로 게임
+      if (data.needProfile) {
+        window.location.href = "select.html";
+      } else {
         showGame();
       }
     });
-  </script>
+
+    // 🔹 회원가입 (여기서는 이메일/비번만, 닉네임은 select에서)
+    $("registerForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = $("regEmail").value;
+      const password = $("regPassword").value;
+      const nickname = $("regNickname").value; // 지금 폼에 있지만, 서버에서는 무시해도 됨 (또는 같이 저장해도 되고)
+
+      const data = await apiPost("/api/register", { email, password, nickname });
+      if (!data.ok) return setMsg(data.message || "회원가입 실패", true);
+
+      localStorage.setItem("wondie_token", data.token);
+      if (window.net && typeof net.reconnect === "function") net.reconnect();
+
+      // 새 유저니까 당연히 프로필 필요 → 캐릭터/닉네임 설정 화면으로
+      window.location.href = "select.html";
+    });
+
+    // 🔹 페이지 로드 시 자동 로그인 시도
+    checkMeAndRoute();
+  });
+</script>
 </body>
 </html>

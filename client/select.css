@@ -1,0 +1,202 @@
+:root {
+  --cs-cream: #fff6d3;
+  --cs-beige: #ffe9b0;
+  --cs-mint: #cdeed6;
+  --cs-brown: #5d4c2b;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.hidden {
+  display: none;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  color: var(--cs-brown);
+}
+
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+/* 살짝 밝게/블러 오버레이 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(2px);
+  z-index: -1;
+}
+
+.cs-overlay {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 40px;
+}
+
+.cs-logo {
+  font-size: 42px;
+  font-weight: 900;
+  color: #f7b236;
+  text-shadow: 0 4px 0 #a85c22;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+}
+
+.cs-panel {
+  background: var(--cs-cream);
+  border-radius: 32px;
+  border: 4px solid var(--cs-brown);
+  box-shadow: 0 10px 0 rgba(93, 76, 43, 0.4);
+  padding: 24px 32px 28px;
+  width: 80%;
+  max-width: 900px;
+}
+
+.cs-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.cs-carousel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+
+.cs-arrow {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid var(--cs-brown);
+  background: var(--cs-beige);
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--cs-brown);
+  box-shadow: 0 4px 0 rgba(93, 76, 43, 0.35);
+  transform: translateY(0);
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+}
+
+.cs-arrow:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(93, 76, 43, 0.35);
+}
+
+.cs-cards {
+  display: flex;
+  gap: 24px;
+}
+
+.cs-card {
+  width: 180px;
+  height: 240px;
+  border-radius: 24px;
+  border: 3px solid var(--cs-brown);
+  background: var(--cs-beige);
+  box-shadow: 0 6px 0 rgba(93, 76, 43, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 18px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+
+.cs-card.selected {
+  background: var(--cs-mint);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 0 rgba(93, 76, 43, 0.3);
+}
+
+.cs-portrait {
+  width: 110px;
+  height: 110px;
+  border-radius: 999px;
+  border: 3px solid var(--cs-brown);
+  background: #ffffff;
+  margin-bottom: 12px;
+}
+
+.cs-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.cs-desc {
+  margin-top: 16px;
+  padding: 12px 18px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px dashed rgba(93, 76, 43, 0.4);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cs-buttons {
+  margin-top: 18px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.cs-btn {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 3px solid var(--cs-brown);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 0 rgba(93, 76, 43, 0.35);
+  transform: translateY(0);
+  transition: transform 0.08s, box-shadow 0.08s, background 0.08s;
+}
+
+.cs-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(93, 76, 43, 0.35);
+}
+
+.cs-btn-primary {
+  background: var(--cs-mint);
+}
+
+.cs-btn-secondary {
+  background: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .cs-panel {
+    width: 94%;
+    padding: 20px 16px 22px;
+  }
+
+  .cs-cards {
+    flex-direction: column;
+  }
+
+  .cs-card {
+    width: 160px;
+    margin: 0 auto;
+  }
+}
