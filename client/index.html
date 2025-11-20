@@ -5,62 +5,75 @@
   <title>WonDieWorld</title>
 
   <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet" />
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="net.js"></script>
   <script src="main.js"></script>
 </head>
-
 <body>
   <!-- 🔹 메인 광장 배경 영상 -->
   <video class="bg-video" autoplay muted loop playsinline>
     <source src="videos/main_plaza.mp4" type="video/mp4" />
   </video>
 
-  <!-- 🔹 상단 WonDieWorld 로고 -->
-<div class="top-logo-bar">
-  <img src="img/logo_wondieworld.png" alt="WonDieWorld" class="logo-img" />
-</div>
+  <!-- 🔹 상단 로고 -->
+  <div class="top-logo-bar">
+    <img src="img/logo_wondieworld.png" alt="WonDieWorld" class="logo-img" />
+  </div>
 
-  <!-- 🔹 로그인 / 회원가입 화면 -->
+  <!-- 🔹 로그인 / 회원가입 UI -->
   <div id="authOverlay" class="auth-overlay">
-    <div class="auth-box">
-      <div class="auth-tabs">
-        <button id="tabLogin" class="active">로그인</button>
-        <button id="tabRegister">회원가입</button>
+    <div class="login-panel">
+      <!-- 탭 -->
+      <div class="tabs">
+        <button id="tabLogin" class="tab-btn active">
+          <span>로그인</span>
+        </button>
+        <button id="tabRegister" class="tab-btn">
+          <span>회원가입</span>
+        </button>
       </div>
 
-      <!-- 로그인 -->
-      <form id="loginForm" class="auth-form">
-        <label>이메일
-          <input type="email" id="loginEmail" required />
-        </label>
-        <label>비밀번호
-          <input type="password" id="loginPassword" required />
-        </label>
-        <button type="submit">로그인</button>
-      </form>
+      <!-- 패널 안 내용 -->
+      <div class="panel-body">
+        <!-- 로그인 폼 -->
+        <form id="loginForm" class="auth-form">
+          <label>
+            이메일
+            <input type="email" id="loginEmail" required />
+          </label>
+          <label>
+            비밀번호
+            <input type="password" id="loginPassword" required />
+          </label>
+          <button type="submit" class="btn-img btn-login">로그인</button>
+        </form>
 
-      <!-- 회원가입 -->
-      <form id="registerForm" class="auth-form hidden">
-        <label>이메일
-          <input type="email" id="regEmail" required />
-        </label>
-        <label>비밀번호 (4자 이상)
-          <input type="password" id="regPassword" required minlength="4" />
-        </label>
-        <label>닉네임
-          <input type="text" id="regNickname" required />
-        </label>
-        <button type="submit">회원가입</button>
-      </form>
+        <!-- 회원가입 폼 -->
+        <form id="registerForm" class="auth-form hidden">
+          <label>
+            이메일
+            <input type="email" id="regEmail" required />
+          </label>
+          <label>
+            비밀번호 (4자 이상)
+            <input type="password" id="regPassword" required minlength="4" />
+          </label>
+          <label>
+            닉네임
+            <input type="text" id="regNickname" required />
+          </label>
+          <button type="submit" class="btn-img btn-register">회원가입</button>
+        </form>
 
-      <div id="authMessage" class="auth-message"></div>
+        <div id="authMessage" class="auth-message"></div>
+      </div>
     </div>
   </div>
 
-  <!-- 🔹 게임 화면 -->
-  <div id="gameRoot" class="hidden">
+  <!-- 🔹 로그인 후 게임 화면 -->
+  <div id="gameRoot" class="game-root hidden">
     <canvas id="gameCanvas" width="960" height="540"></canvas>
   </div>
 
@@ -69,7 +82,7 @@
 
     function setMsg(msg, err = false) {
       const box = $("authMessage");
-      box.textContent = msg;
+      box.textContent = msg || "";
       box.style.color = err ? "red" : "#333";
     }
 
@@ -112,4 +125,34 @@
         const email = $("loginEmail").value;
         const password = $("loginPassword").value;
 
-        const data = awa
+        const data = await apiPost("/api/login", { email, password });
+        if (!data.ok) return setMsg(data.message, true);
+
+        localStorage.setItem("wondie_token", data.token);
+        if (window.net && typeof net.reconnect === "function") net.reconnect();
+        showGame();
+      });
+
+      $("registerForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = $("regEmail").value;
+        const password = $("regPassword").value;
+        const nickname = $("regNickname").value;
+
+        const data = await apiPost("/api/register", { email, password, nickname });
+        if (!data.ok) return setMsg(data.message, true);
+
+        localStorage.setItem("wondie_token", data.token);
+        if (window.net && typeof net.reconnect === "function") net.reconnect();
+        showGame();
+      });
+
+      const token = localStorage.getItem("wondie_token");
+      if (token) {
+        if (window.net && typeof net.init === "function") net.init();
+        showGame();
+      }
+    });
+  </script>
+</body>
+</html>
