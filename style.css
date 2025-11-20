@@ -1,0 +1,213 @@
+:root {
+  --color-forest-green: #cde8c9;
+  --color-cream: #fff6d3;
+  --color-cozy-beige: #ffe9a8;
+  --color-wood-brown: #5d4c2b;
+  --font-soft: 'MaruBuri', 'Nanum Pen Script', sans-serif;
+  --font-logo: 'Jua', system-ui, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-soft);
+  color: var(--color-wood-brown);
+  background: transparent;
+  overflow: hidden;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* 🔹 배경 영상 */
+.bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 100vw;
+  min-height: 100vh;
+  object-fit: cover;
+  z-index: 0;
+  filter: brightness(0.95);
+  pointer-events: none;
+}
+
+/* 🔹 로고 */
+.top-logo-bar {
+  position: fixed;
+  top: 18px;
+  width: 100%;
+  text-align: center;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.logo-img {
+  width: 320px;
+  height: auto;
+}
+
+/* 🔹 로그인 전체 오버레이 */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  background: radial-gradient(circle at center,
+              rgba(255, 255, 255, 0.18) 0%,
+              rgba(255, 255, 255, 0.0) 55%);
+}
+
+/* 🔹 나무 로그인 패널 */
+.login-panel {
+  position: relative;
+  width: 520px;
+  height: 340px;
+  background: url("img/ui_panel.png") center/contain no-repeat;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 80px;   /* 캡슐 없으니까 조금만 띄우기 */
+}
+
+/* 🔹 탭 */
+.tabs {
+  position: absolute;
+  top: -20px;   /* 기존 -30px → -20px으로 조정 */
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 16px;
+}
+
+/* 탭 버튼 공통 */
+.tab-btn {
+  position: relative;
+  width: 180px;
+  height: 64px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  font-family: var(--font-logo);
+  font-size: 16px;
+  color: #5d4c2b;
+}
+
+/* 기본 베이지 탭 */
+#tabLogin,
+#tabRegister {
+  background-image: url("img/ui_tab_off.png");
+}
+
+/* 활성 탭은 민트, 살짝만 위로 */
+.tab-btn.active {
+  background-image: url("img/ui_tab_on.png");
+  transform: translateY(-4px);
+}
+
+.tab-btn span {
+  position: relative;
+  top: 8px;
+}
+
+/* 🔹 패널 안 내용 */
+.panel-body {
+  width: 78%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;          /* 각 라인 간격 조금 늘리기 */
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-form label {
+  font-size: 15px;
+  margin-bottom: 3px;
+}
+
+.auth-form input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 3px solid var(--color-forest-green);
+  font-size: 14px;
+  outline: none;
+  background: #ffffff;
+}
+
+.auth-form input:focus {
+  border-color: var(--color-cozy-beige);
+  box-shadow: 0 0 0 3px rgba(255, 233, 168, 0.45);
+}
+
+/* 🔹 버튼 (이미지) */
+.btn-img {
+  margin-top: 4px;
+  width: 100%;
+  height: 55px;
+  border: none;
+  padding: 0;
+  background-color: transparent;   /* ✅ 배경 제거 */
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  font-family: var(--font-logo);
+  font-size: 16px;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* 로그인(민트), 회원가입(베이지) */
+.btn-login {
+  background-image: url("img/ui_button_ok.png");
+}
+
+.btn-register {
+  background-image: url("img/ui_button_neutral.png");
+  color: #5d4c2b;
+}
+
+.btn-img:active {
+  transform: translateY(2px);
+}
+
+/* 메시지 */
+.auth-message {
+  min-height: 16px;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* 🔹 로그인 후 게임 루트 */
+.game-root {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 500;
+}
+
+#gameCanvas {
+  background: transparent;
+  border-radius: 16px;
+  border: 3px solid rgba(0,0,0,0.16);
+}
