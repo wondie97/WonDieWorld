@@ -103,9 +103,13 @@
     }
 
     function showGame() {
-      $("authOverlay").classList.add("hidden");
-      $("gameRoot").classList.remove("hidden");
-    }
+     $("authOverlay").classList.add("hidden");
+     $("gameRoot").classList.remove("hidden");
+
+  // 🔹 로그인 후 게임 루프 시작
+  if (window.gameMain && typeof window.gameMain.start === "function") {
+    window.gameMain.start();
+  }
 
     async function apiPost(url, body) {
       const res = await fetch(url, {
